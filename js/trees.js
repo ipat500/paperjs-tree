@@ -9,7 +9,7 @@ var path = new Path.Rectangle(new Point(0, 0), new Point(view.viewSize.width, vi
 project.activeLayer.lastChild.fillColor = '#a7e4e1';
 
 var start = new Point(view.viewSize.width*0.5, view.viewSize.height*1);
-var height = view.viewSize.height*1;
+var height = view.viewSize.height*0.70;
 createTree(start, height)
 
 function createTree(start, height) {

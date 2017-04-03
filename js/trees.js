@@ -27,14 +27,15 @@ function createTree(start, height) {
 
 function drawSkeleton(start, height) {
     var initialBranch = new Point(0, height*-0.45);
-    var skeleton = addBranch(initialBranch, 1, 3, 3);
+    var maxN = 4
+    var skeleton = addBranch(initialBranch, 1, maxN, maxN);
     renderSkeletonSmooth(start, skeleton, height*0.12);
     //renderSkeleton(start, skeleton, height*0.005);
 }
 
 function addBranch(p, weight, n, maxN) {
   var children = [];
-  var weightModifier = 1-0.9*((maxN-n)/maxN);
+  var weightModifier = 1-0.8*((maxN-n)/maxN);
   // console.log(n, weightModifier);
   if (n>0) {
     var b1= new Point(p);
@@ -77,8 +78,11 @@ function renderSkeletonSmooth(start, skeleton, baseWidth) {
   function recurse(path, start, skeleton) {
     var length = skeleton.p.length;
     if (skeleton.c.length==0) {
-      var hOutThere = new Point(skeleton.p) * -0.4;
-      var hInBack = new Point(skeleton.p) * -0.4;
+      var cross = new Point(skeleton.p);
+      cross.angle += 90;
+      cross.length = baseWidth*skeleton.weight*0.8;
+      var hOutThere = skeleton.p*-0.00 - cross;
+      var hInBack = skeleton.p*-0.00 + cross;
       //markPoint(start+skeleton.p);
       path.add(new Segment(start + skeleton.p, hInBack, hOutThere));
     } else {
@@ -99,13 +103,8 @@ function renderSkeletonSmooth(start, skeleton, baseWidth) {
   }
 
   function getJoinSection(start, parentWeight, b1, b2) {
-    // var averageWidth = (b1.weight + b2.weight)/2.0;
-    // console.log(averageWidth);
-    // var a = ((b1.p-b2.p)/b1.p.length).length * -10;
-    // markPoint(start+b2.p+a);
-    //var p = (b1.p + b2.p).normalize()*((b1.p-b2.p)/b1.p.length).length*averageWidth*50;
     var p = b1.p.normalize() + b2.p.normalize()
-    p.length = baseWidth*parentWeight/2;
+    p.length = baseWidth*parentWeight*0.5;
     var h1 = new Point(b1.p);
     h1.length = p.length;
     var h2 = new Point(b2.p);
@@ -115,13 +114,13 @@ function renderSkeletonSmooth(start, skeleton, baseWidth) {
 
   function getSideSection(start, parentBranch, childBranch, isThere) {
     var p = childBranch.p.normalize()-parentBranch.p.normalize();
-    p.length = baseWidth*parentBranch.weight/2;
-    //markPoint(start + parentBranch.p + p);
+    p.length = baseWidth*parentBranch.weight*0.5;
+    // markPoint(start + parentBranch.p + p);
 
     var hThere = parentBranch.p + childBranch.p;
-    hThere.length = childBranch.p.length*0.18;
+    hThere.length = childBranch.weight*baseWidth*0.6;//childBranch.p.length*0.18;
     var hBack = new Point(hThere);
-    hBack.length = parentBranch.p.length*-0.18;
+    hBack.length = -parentBranch.weight*baseWidth*0.6;//parentBranch.p.length*-0.18;
     // markPoint(start + parentBranch.p + p + hThere);
     // markPoint(start + parentBranch.p + p + hBack);
     if (isThere) {
@@ -200,7 +199,7 @@ function drawTrunk(start, length) {
 }
 
 function markPoint(p) {
-  new Path.Circle(p, 5);
+  new Path.Circle(p, 1.8);
   project.activeLayer.lastChild.fillColor = 'black';
 }
 

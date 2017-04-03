@@ -27,27 +27,28 @@ function createTree(start, height) {
 
 function drawSkeleton(start, height) {
     var initialBranch = new Point(0, height*-0.45);
-    var skeleton = addBranch(initialBranch, 1, 3);
+    var skeleton = addBranch(initialBranch, 1, 3, 3);
     renderSkeletonSmooth(start, skeleton, height*0.12);
     //renderSkeleton(start, skeleton, height*0.005);
 }
 
-function addBranch(p, weight, n) {
+function addBranch(p, weight, n, maxN) {
   var children = [];
-  var weightModifier = 1;
+  var weightModifier = 1-0.9*((maxN-n)/maxN);
+  // console.log(n, weightModifier);
   if (n>0) {
     var b1= new Point(p);
     b1.angle += 45;
     b1.length *= 0.6;
-    children.push(addBranch(b1, weight*0.6*weightModifier, n-1));
+    children.push(addBranch(b1, weight*0.6*weightModifier, n-1, maxN));
     var b2= new Point(p);
     b2.angle -= 10;
     b2.length *= 0.65;
-    children.push(addBranch(b2, weight*0.6*weightModifier, n-1));
+    children.push(addBranch(b2, weight*0.6*weightModifier, n-1, maxN));
     var b2= new Point(p);
     b2.angle -= 60;
     b2.length *= 0.62;
-    children.push(addBranch(b2, weight*0.6*weightModifier, n-1));
+    children.push(addBranch(b2, weight*0.6*weightModifier, n-1, maxN));
   }
   return {p: p, c: children, weight: weight};
 }
@@ -105,8 +106,10 @@ function renderSkeletonSmooth(start, skeleton, baseWidth) {
     //var p = (b1.p + b2.p).normalize()*((b1.p-b2.p)/b1.p.length).length*averageWidth*50;
     var p = b1.p.normalize() + b2.p.normalize()
     p.length = baseWidth*parentWeight/2;
-    var h1 = b1.p*0.2;
-    var h2 = b2.p*0.2;
+    var h1 = new Point(b1.p);
+    h1.length = p.length;
+    var h2 = new Point(b2.p);
+    h2.length = p.length;
     return new Segment(start + p, h1, h2);
   }
 

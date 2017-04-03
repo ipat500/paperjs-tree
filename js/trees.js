@@ -34,19 +34,20 @@ function drawSkeleton(start, height) {
 
 function addBranch(p, weight, n) {
   var children = [];
+  var weightModifier = 1;
   if (n>0) {
     var b1= new Point(p);
     b1.angle += 45;
     b1.length *= 0.6;
-    children.push(addBranch(b1, weight*0.6, n-1));
+    children.push(addBranch(b1, weight*0.6*weightModifier, n-1));
     var b2= new Point(p);
     b2.angle -= 10;
     b2.length *= 0.65;
-    children.push(addBranch(b2, weight*0.6, n-1));
+    children.push(addBranch(b2, weight*0.6*weightModifier, n-1));
     var b2= new Point(p);
     b2.angle -= 60;
     b2.length *= 0.62;
-    children.push(addBranch(b2, weight*0.6, n-1));
+    children.push(addBranch(b2, weight*0.6*weightModifier, n-1));
   }
   return {p: p, c: children, weight: weight};
 }
@@ -87,7 +88,7 @@ function renderSkeletonSmooth(start, skeleton, baseWidth) {
           // var hInBack = new Point(lastChild.p) * 0.4;
           // var hOutThere = new Point(skeleton.c[i].p) * 0.4;
           // path.add(new Segment(start + skeleton.p*1.2, hInBack, hOutThere));
-          path.add(getJoinSection(start + skeleton.p, lastChild, skeleton.c[i]));
+          path.add(getJoinSection(start + skeleton.p, skeleton.weight, lastChild, skeleton.c[i]));
         }
         recurse(path, start + skeleton.p , skeleton.c[i]);
         lastChild = skeleton.c[i];
@@ -96,12 +97,16 @@ function renderSkeletonSmooth(start, skeleton, baseWidth) {
     }
   }
 
-  function getJoinSection(start, b1, b2) {
-    var averageWidth = (b1.weight + b2.weight)/2.0;
-    console.log(averageWidth);
-    var p = (b1.p + b2.p).normalize()*((b1.p-b2.p)/b1.p.length).length*averageWidth*50;
-    var h1 = (b1.p-p)*0.2;
-    var h2 = (b2.p-p)*0.2;
+  function getJoinSection(start, parentWeight, b1, b2) {
+    // var averageWidth = (b1.weight + b2.weight)/2.0;
+    // console.log(averageWidth);
+    // var a = ((b1.p-b2.p)/b1.p.length).length * -10;
+    // markPoint(start+b2.p+a);
+    //var p = (b1.p + b2.p).normalize()*((b1.p-b2.p)/b1.p.length).length*averageWidth*50;
+    var p = b1.p.normalize() + b2.p.normalize()
+    p.length = baseWidth*parentWeight/2;
+    var h1 = b1.p*0.2;
+    var h2 = b2.p*0.2;
     return new Segment(start + p, h1, h2);
   }
 
